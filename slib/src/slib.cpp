@@ -23,21 +23,9 @@
  * @version 1.0
  * @brief
  */
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <sstream>
-#include <list>
-#include <streambuf>
-#include <string>
-#include <filesystem>
+#include "base_inc.h"
 
 using namespace std;
-
-#include "definition.h"
-#include "clauses.h"
-#include "utility.h"
-#include "documentation.h"
 
 /**
  * main
@@ -61,6 +49,19 @@ int main(int argc, char **argv) {
 
   if (!decl.processing_needed)
     return 0;
+
+  // the gen was listed. add these files to the command_line_files
+  // after generating the .slib from the "input file.h". The file
+  // contains the target exported functions labeled with little impact on
+  // existing code. to have these files generated. The tags
+  //  [slib-export-begin], [slib-export-end], or [slib-export]
+  //    must be within the source file.
+  if (decl.cmd_gen)
+    if (!decl.generate_slibs()) {
+      cout << endl << "No files were generated. " << endl;
+      cout << "Exiting." << endl;
+      return 0;
+    }
 
   for (auto n : decl.command_line_files) {
     decl.slib_filename = n;

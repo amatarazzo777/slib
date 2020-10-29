@@ -31,6 +31,12 @@
 #include <string>
 #include <filesystem>
 
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+
 #include "utility.h"
 
 using namespace std;
@@ -96,3 +102,5 @@ void trim(std::string &s) {
   ltrim(s);
   rtrim(s);
 }
+
+

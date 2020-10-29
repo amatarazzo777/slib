@@ -60,8 +60,12 @@ public:
   bool cmd_help = {};
   bool cmd_quick_reference = {};
   bool cmd_stub = {};
+  bool cmd_gen = {};
   bool processing_needed = true;
   fs_path_t cmd_output_directory = {};
+  // output slib generator
+  std::vector<fs_path_t> slib_files_to_generate = {};
+  fs_path_t slib_template_file_input = {};
   smatch match;
   bool bmatch = {};
 };
@@ -115,6 +119,9 @@ public:
   void fmt();
   void ns();
   void store_h_cpp_slot(fs_path_t &header_slot, fs_path_t &cpp_slot);
+
+  // generate slibs from existing code
+  bool generate_slibs();
 
   // reading process.
   bool read();

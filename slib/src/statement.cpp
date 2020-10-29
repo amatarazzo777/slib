@@ -23,20 +23,9 @@
  * @version 1.0
  * @brief
  */
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <sstream>
-#include <list>
-#include <streambuf>
-#include <string>
-#include <filesystem>
+#include "base_inc.h"
 
 using namespace std;
-
-#include "definition.h"
-#include "clauses.h"
-#include "utility.h"
 
 /**
  * the routine decides how to interpret the statement using regular

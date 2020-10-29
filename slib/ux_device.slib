@@ -1,0 +1,77 @@
+/* 
+
+	graphic_library interface 
+
+*/
+
+// clang-format off
+
+ /* public interface 
+ member functions. */  @sets the device location
+[50b09f81-82f2-4f0e-b84c-4cc3d35bbbc3] 
+void device (double, /****/
+double);
+
+/* general settings */
+clang-format Chromium;
+
+shared-library-template
+	client_interface_cpp_template.cpp 
+	client_interface_h_template.h;
+
+license
+	license_source.cpp
+	license_header.h;
+
+/* interface settings  */
+client-apie
+	graphic_library_client.cpp 
+	graphic_library_client.h
+	
+shared-library
+	graphic_library_share.cpp
+	graphic_library_sharet.h;
+	
+import-library
+	device.h
+
+/* interface generation class name and linkage */                 
+@The class extends the uxapi namespace.
+namespace uxapi;
+
+@The class name which is the library interface
+@ creating or inheriting this one will load nad connect to the shared library.
+[2284ffb0-bfdd-4c35-ae9e-78efdefb0454] class graphic_library_interface_t;
+
+
+
+ /* public interface  member functions. */  
+ 
+/*
+ @sets the device location
+[50b09f81-82f2-4f0e-b84c-4cc3d35bbbc3] void device (double, double);
+*/
+
+@ The api creates the classes, tags them, and then uses this function.
+[99285a90-0934-4d2a-9e79-f9a67ecef22d] void input_resource(client_data_interface_base_t *);
+
+[80b618c7-2c85-4ad8-89e9-ecbace057449] void linked_mapped_objects_find_size_t(std::size_t);
+[d5c91bff-fbd2-4ef0-9ce0-98e77ea697ab] void linked_mapped_objects_find_string(char *, std::size_t);
+[50b09f81-82f2-4f0e-b84c-4cc3d35bbbc3] void save(void);
+[866added-e00f-4669-a98c-d475a86bf210] void restore(void);
+[7f4f8365-cc37-43a6-a403-03584d4e7db5] void push(content_type_t &); 
+[50959b45-4511-491e-bed6-7d1a226505e9] void pop(void);
+[e67e6348-7245-4d5d-8b64-aa81ec0c56bb] void scale(double, double);
+[2284ffb0-bfdd-4c35-ae9e-78efdefb0454] void transform(matrix_t &);
+[f672cb66-16fd-471f-b601-1066cad5c035] void matrix(matrix_t &);
+[30aa97af-b460-4452-949c-a202b502e348] void identity(void);
+[a3e42387-91af-442c-9d66-ff37137b2983] void translate(double, double);
+[adbb2040-e60d-4b18-94ac-cd700d51ab3d] void rotate(double);
+[6ba26f9e-cdeb-430b-9277-d5b67efb58d1] void device(double,double);
+[58d4f29c-7225-4fa1-8277-f2b053c887e3] void device_distance(double, double);
+[7e291cb2-5427-410f-bc31-13d5a4b63f9b] void device_offset(double, double);
+[4afe4d4a-789e-4933-b67b-82f6fb4432bd] void device_scale(double, double);
+[7bce07e9-d17d-4114-b17c-9bf488822107] void user(double, double);
+[0b80b4fc-0982-4c82-be98-7f3d48570e9e] void user_distance(double, double);
+[2201b8be-1226-4cda-be1a-dda83559c25e] void notify_complete(void);
+

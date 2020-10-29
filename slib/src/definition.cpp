@@ -1,20 +1,31 @@
-#include <fstream>
-#include <iostream>
-#include <regex>
-#include <sstream>
-#include <list>
-#include <streambuf>
-#include <string>
-#include <filesystem>
+/*
+ * This file is part of the ux_gui_stream distribution
+ * (https://github.com/amatarazzo777/ux_gui_stream).
+ * Copyright (c) 2020 Anthony Matarazzo.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @author Anthony Matarazzo
+ * @file definition.cpp
+ * @date 10/25/20
+ * @version 1.0
+ * @brief
+ */
+#include "base_inc.h"
 
 using namespace std;
-namespace fs = std::filesystem;
-
-#include "definition.h"
-#include "clauses.h"
-#include "documentation.h"
-#include "utility.h"
-
 bool slib_definition_t::search(const std::string &sexpr) {
   using namespace std::regex_constants;
   using namespace std;
@@ -78,6 +89,22 @@ void slib_definition_t::store_h_cpp_slot(fs_path_t &header_slot,
     cpp_slot = match[3];
     header_slot = match[2];
   }
+}
+
+/**
+ *
+ */
+bool slib_definition_t::generate_slibs() {
+  for (auto n : slib_files_to_generate) {
+    generator_t gen(n, slib_template_file_input);
+
+    // add to subsequent processing
+    if (!gen.process())
+      return false;
+
+    command_line_files.emplace_back(gen.output_name);
+  }
+  return true;
 }
 
 /**
@@ -335,11 +362,16 @@ bool slib_definition_t::generate_client_api_interface() {
        }},
 
       {"enclosing_namespace_documentation",
-       [&]() { return enclosing_namespace_documentation; }},
+       [&]() {
+         stringstream ss;
+         ss << "/*" << enclosing_namespace_documentation << "/*";
+         return ss.str();
+       }},
 
       {"enclosing_namespace", [&]() { return enclosing_namespace; }},
 
       {"class_interface", [&]() { return class_interface(); }},
+      {"class_name", [&]() { return class_name; }},
 
       {"public_member_functions_class_api",
        [&]() { return public_member_functions_class_api(); }},
@@ -443,17 +475,15 @@ std::string slib_definition_t::private_guid_function_ties() {
 std::string
 slib_definition_t::format_fn_std_function_decl(fn_prototype_t proto) {
   stringstream ss;
-  std::size_t parameter_cnt = {};
 
   ss << "std::function<";
-  ss << proto.return_type << " "
-     << "(";
+  ss << proto.return_type << "(";
   for (auto param : proto.parameters)
     ss << param << ",";
   ss.seekp(-1, std::ios_base::end);
   ss << ")> ";
 
-  ss << "fn_" << format_guid_underlined(proto.guid) << ";" << endl;
+  ss << "fn_" << format_guid_underlined(proto.guid) << "={};" << endl;
   return ss.str();
 }
 
@@ -517,6 +547,7 @@ bool slib_definition_t::format_files() {
  */
 bool slib_definition_t::parse_command_line(int argc, char **argv) {
   fs_path_t *ptr_store_next = {};
+  std::vector<fs_path_t> *ptr_store_vector = {};
 
   const unordered_map<string, function<void(void)>> option_flags = {
       {"--o", [&]() { cmd_overwrite_files = true; }},
@@ -528,7 +559,11 @@ bool slib_definition_t::parse_command_line(int argc, char **argv) {
       {"--help", [&]() { cmd_help = true; }},
       {"--ref", [&]() { cmd_quick_reference = true; }},
       {"--dir", [&]() { ptr_store_next = &cmd_output_directory; }},
-      {"--stub", [&]() { cmd_stub = true; }}};
+      {"--stub", [&]() { cmd_stub = true; }},
+      {"--gen", [&]() {
+         cmd_gen = true;
+         ptr_store_vector = &slib_files_to_generate;
+       }}};
 
   // no params.
   if (argc < 2) {
@@ -537,9 +572,9 @@ bool slib_definition_t::parse_command_line(int argc, char **argv) {
     return 0;
   }
 
-  // iterate arguments from command line. Each are separate by space or filtered
-  // through the command line for quotes. etc. , the quotes are out and file
-  // names are separated.
+  // iterate arguments from command line. Each are separate by space or
+  // filtered through the command line for quotes. etc. , the quotes are out
+  // and file names are separated.
   for (int i = 1; i < argc; i++) {
     std::string token = argv[i];
 
@@ -560,12 +595,24 @@ bool slib_definition_t::parse_command_line(int argc, char **argv) {
         cout << "Error: invalid command line option. " << token;
         return false;
       }
+      // reset flow of unmarked parameters
+      ptr_store_vector = {};
+      // invoke flag evaluator - unordered_map<> option_flags->second
       it->second();
 
     } else {
+      // if a vector capture of argv[] (alias token) parameters is requested,
+      // ptr_store_vector will direct the flow into it. The default is that
+      // parameters flow into into the command_line_files.
+      auto ptr_storage = &command_line_files;
+
+      // check alternate storage flow for unmarked parameters.
+      if (ptr_store_vector)
+        ptr_storage = ptr_store_vector;
+
       // assume its a filename, use the std::filesystem to check validity
-      command_line_files.emplace_back(token);
-      if (!command_line_files.back().has_filename()) {
+      ptr_storage->emplace_back(token);
+      if (!ptr_storage->back().has_filename()) {
         cout << "Error: invalid filename given. " << token;
         return false;
       }

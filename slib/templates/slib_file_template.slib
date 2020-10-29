@@ -1,0 +1,41 @@
+/* 
+	%%interface_name%%
+
+*/
+
+// clang-format off
+
+
+/* general settings */
+clang-format Chromium;
+
+shared-library-template
+	client_interface_cpp_template.cpp 
+	client_interface_h_template.h;
+
+license
+	license_source.cpp
+	license_header.h;
+
+/* interface settings  */
+client-api
+	%%interface_name%%_client.cpp 
+	%%interface_name%%_client.h
+	
+shared-library
+	%%interface_name%%_share.cpp
+	%%interface_name%%_share.h;
+	
+import-library
+	%%interface_input%%.h
+
+
+namespace %%namespace%%;
+
+[%%uuid%%] class %%interface_name%%;
+
+
+
+/* public interface member functions. */  
+ 
+%%interface%%
