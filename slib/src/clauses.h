@@ -21,7 +21,7 @@
  * @file statement.h
  * @date 10/25/20
  * @version 1.0
- * @brief
+ * @brief The generation of full paragraphs of regular expressions.
  */
 
 #pragma once
